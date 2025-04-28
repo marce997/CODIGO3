@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Minus, PieChart, History, ListChecks, Building2, User } from 'lucide-react';
 import IncomeDialog from '@/components/IncomeDialog';
 import ExpenseDialog from '@/components/ExpenseDialog';
+import ServerRestartButton from '@/components/ServerRestartButton';
 import "./HomeDashboard.css";
 
 const HomeDashboard = () => {
@@ -13,6 +14,7 @@ const HomeDashboard = () => {
 
   return (
     <div className="min-h-screen p-6 md:p-8">
+      <ServerRestartButton />
       <header className="mb-12 relative">
         <div className="absolute right-0 top-0">
           <button
