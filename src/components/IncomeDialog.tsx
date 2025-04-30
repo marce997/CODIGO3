@@ -107,25 +107,9 @@ const IncomeDialog = () => {
   };
 
   const handleLaunch = () => {
-    const errors = [];
-    if (!date) errors.push("Data");
-    if (!amount) errors.push("Valor");
-    if (!category) errors.push("Categoria");
-    if (!paymentMethod) errors.push("Forma de Pagamento");
-    if (!selectedClient) errors.push("Cliente");
-
-    if (errors.length > 0) {
-      toast.error(`Por favor, preencha os seguintes campos: ${errors.join(", ")}`, {
+    if (!date || !amount || !category || !paymentMethod || !selectedClient) {
+      toast.error("Preencha todos os campos obrigatórios!", {
         position: "top-center",
-        duration: 3000,
-        style: {
-          background: "#ef4444",
-          color: "white",
-          border: "none",
-          fontSize: "0.875rem",
-          padding: "0.75rem",
-          borderRadius: "0.5rem",
-        },
       });
       return;
     }

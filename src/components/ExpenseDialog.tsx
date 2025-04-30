@@ -5,8 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -18,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Minus, UserPlus, Info, Zap, CreditCard, Banknote, DollarSign, ArrowUpDown, Calendar, Clock } from "lucide-react";
+import { Minus, UserPlus, Info, Zap, CreditCard, Banknote, DollarSign, ArrowUpDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   Popover,
@@ -41,13 +39,11 @@ interface Supplier {
 const ExpenseDialog = () => {
   const [selectedSupplier, setSelectedSupplier] = useState<string>("");
   const [isFutureExpense, setIsFutureExpense] = useState(false);
-  const [isFixedExpense, setIsFixedExpense] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [installments, setInstallments] = useState<number>(1);
   const [installmentValue, setInstallmentValue] = useState<string>("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
-  const [date, setDate] = useState("");
   const [recurrenceType, setRecurrenceType] = useState<string>("");
   const [recurrenceDay, setRecurrenceDay] = useState<number>(1);
   const [recurrenceStartDate, setRecurrenceStartDate] = useState<string>("");
@@ -66,11 +62,6 @@ const ExpenseDialog = () => {
   });
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [isFixedExpenseModalOpen, setIsFixedExpenseModalOpen] = useState(false);
-  const [fixedExpenseType, setFixedExpenseType] = useState<string>("");
-  const [fixedExpenseFrequency, setFixedExpenseFrequency] = useState<string>("");
-  const [fixedExpenseStartDate, setFixedExpenseStartDate] = useState<string>("");
-  const [fixedExpenseEndDate, setFixedExpenseEndDate] = useState<string>("");
 
   // Calculate installment value whenever amount or installments change
   useEffect(() => {
@@ -107,33 +98,6 @@ const ExpenseDialog = () => {
   };
 
   const handleLaunch = () => {
-    const errors = [];
-    if (!date) errors.push("Data");
-    if (!amount) errors.push("Valor");
-    if (!category) errors.push("Categoria");
-    if (!paymentMethod) errors.push("Forma de Pagamento");
-    if (!selectedSupplier) errors.push("Fornecedor");
-
-    if (category === "fixed" && !recurrenceType) {
-      errors.push("Tipo de Recorrência");
-    }
-
-    if (errors.length > 0) {
-      toast.error(`Por favor, preencha os seguintes campos: ${errors.join(", ")}`, {
-        position: "top-center",
-        duration: 3000,
-        style: {
-          background: "#ef4444",
-          color: "white",
-          border: "none",
-          fontSize: "0.875rem",
-          padding: "0.75rem",
-          borderRadius: "0.5rem",
-        },
-      });
-      return;
-    }
-
     if (category === "fixed" && recurrenceType) {
       const message = `Despesa fixa programada com sucesso! 
         Recorrência: ${recurrenceType === "daily" ? "Diária" : 
@@ -170,16 +134,6 @@ const ExpenseDialog = () => {
     setInstallmentValue(value ? formatCurrency(value) : "");
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedDate = e.target.value;
-    setDate(selectedDate);
-    
-    // Check if the selected date is in the future
-    const today = new Date();
-    const selectedDateObj = new Date(selectedDate);
-    setIsFutureExpense(selectedDateObj > today);
-  };
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -201,16 +155,16 @@ const ExpenseDialog = () => {
           </div>
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[950px] p-0 gap-0">
+      <DialogContent className="sm:max-w-[800px] p-0 gap-0">
         <div className="flex flex-col md:flex-row">
-          <div className="w-full md:w-[28%] bg-red-500 text-white p-6 rounded-t-lg md:rounded-l-lg md:rounded-tr-none">
+          <div className="w-full md:w-1/3 bg-red-500 text-white p-8 rounded-t-lg md:rounded-l-lg md:rounded-tr-none">
             <DialogHeader>
-              <DialogTitle className="text-xl font-semibold mb-4">Nova Despesa</DialogTitle>
+              <DialogTitle className="text-2xl font-semibold mb-4">Nova Despesa</DialogTitle>
               <p className="text-sm opacity-90">
                 Registre suas saídas financeiras de forma simples e organizada
               </p>
             </DialogHeader>
-            <div className="mt-6">
+            <div className="mt-8">
               <Card className="bg-[#FFEBEE] border-white/20 p-4 rounded-lg">
                 <div className="flex items-start gap-2">
                   <Info className="h-4 w-4 mt-0.5 shrink-0 text-[#1A1F2C]" />
@@ -224,137 +178,101 @@ const ExpenseDialog = () => {
               </Card>
             </div>
           </div>
-          <div className="w-full md:w-[72%] p-6">
+          <div className="w-full md:w-2/3 p-8">
             <div className="flex justify-center mb-6">
               <div className="flex items-center gap-4 bg-slate-100 p-2 rounded-lg">
-                <span className={`text-sm px-3 py-1.5 rounded transition-colors ${!isFutureExpense ? 'bg-red-100 font-medium' : ''}`}>Pago</span>
+                <span className={`text-sm px-3 py-1 rounded transition-colors ${!isFutureExpense ? 'bg-red-100 font-medium' : ''}`}>Despesa Atual</span>
                 <Switch
                   checked={isFutureExpense}
                   onCheckedChange={setIsFutureExpense}
                 />
-                <span className={`text-sm px-3 py-1.5 rounded transition-colors ${isFutureExpense ? 'bg-purple-100 font-medium' : ''}`}>A pagar</span>
+                <span className={`text-sm px-3 py-1 rounded transition-colors ${isFutureExpense ? 'bg-purple-100 font-medium' : ''}`}>Despesa Futura</span>
               </div>
             </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-row gap-4">
-                <div className="flex-1 min-w-[180px]">
-                  <Label htmlFor="date" className="text-sm font-medium">Data</Label>
-                  <Input 
-                    id="date" 
-                    type="date" 
-                    className="border-slate-200 h-10 text-sm"
-                    value={date}
-                    onChange={handleDateChange}
-                  />
-                </div>
-                <div className="flex-1 min-w-[180px]">
-                  <Label htmlFor="amount" className="text-sm font-medium">Valor Total</Label>
-                  <Input
-                    id="amount"
-                    value={amount}
-                    onChange={handleAmountChange}
-                    placeholder="R$ 0,00"
-                    className="border-slate-200 h-10 text-sm"
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-sm font-medium">Data</Label>
+                <Input id="date" type="date" className="border-slate-200" />
               </div>
-              <div className="flex flex-row gap-8 items-end justify-center">
-                <div className="w-[260px]">
-                  <Label htmlFor="category" className="text-sm font-medium">Categoria</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="w-full border-slate-200 h-10 text-sm">
-                      <SelectValue placeholder="Selecione a categoria" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" className="max-h-[250px] overflow-y-auto">
-                      <SelectGroup>
-                        <SelectItem value="products">Compra de Produtos</SelectItem>
-                        <SelectItem value="services">Contratação de Serviços</SelectItem>
-                        <SelectItem value="suppliers">Pagamento a Fornecedores</SelectItem>
-                        <SelectItem value="investments">Investimentos / Aplicações</SelectItem>
-                        <SelectItem value="partners">Retirada dos Sócios</SelectItem>
-                        <SelectItem value="loans">Empréstimos Concedidos</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="w-[360px] mx-auto flex flex-col">
-                  <Label htmlFor="payment" className="text-sm font-medium">Forma de Pagamento</Label>
-                  <div className="flex flex-row gap-8 items-center">
-                    <div className="flex-1 min-w-[140px] max-w-[360px]">
-                      <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                        <SelectTrigger className="w-full border-slate-200 h-10 text-sm">
-                          <SelectValue placeholder="Selecione o método de pagamento" />
-                        </SelectTrigger>
-                        <SelectContent position="popper">
-                          <SelectGroup>
-                            <SelectItem value="pix">
-                              <div className="flex items-center gap-2">
-                                <Zap className="h-4 w-4" />
-                                <span className="text-sm">Pix</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="credit">
-                              <div className="flex items-center gap-2">
-                                <CreditCard className="h-4 w-4" />
-                                <span className="text-sm">Cartão</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="cash">
-                              <div className="flex items-center gap-2">
-                                <DollarSign className="h-4 w-4" />
-                                <span className="text-sm">Dinheiro</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="boleto">
-                              <div className="flex items-center gap-2">
-                                <Banknote className="h-4 w-4" />
-                                <span className="text-sm">Boleto</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="transfer">
-                              <div className="flex items-center gap-2">
-                                <ArrowUpDown className="h-4 w-4" />
-                                <span className="text-sm">Transferência</span>
-                              </div>
-                            </SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setIsFixedExpense(true)}
-                        className={`flex items-center gap-1 px-3 py-1.5 min-w-[70px] rounded transition-colors ${
-                          isFixedExpense ? "bg-yellow-100 font-medium" : "hover:bg-slate-100"
-                        }`}
-                      >
-                        <Clock className="h-4 w-4" />
-                        <span className="text-sm">Fixa</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsFixedExpense(false)}
-                        className={`flex items-center gap-1 px-3 py-1.5 min-w-[90px] rounded transition-colors ${
-                          !isFixedExpense ? "bg-blue-100 font-medium" : "hover:bg-slate-100"
-                        }`}
-                      >
-                        <ArrowUpDown className="h-4 w-4" />
-                        <span className="text-sm">Variável</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="amount" className="text-sm font-medium">Valor Total</Label>
+                <Input
+                  id="amount"
+                  value={amount}
+                  onChange={handleAmountChange}
+                  placeholder="R$ 0,00"
+                  className="border-slate-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-sm font-medium">Categoria</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="w-full border-slate-200">
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="max-h-[300px] overflow-y-auto">
+                    <SelectGroup>
+                      <SelectItem value="products">Compra de Produtos</SelectItem>
+                      <SelectItem value="services">Contratação de Serviços</SelectItem>
+                      <SelectItem value="suppliers">Pagamento a Fornecedores</SelectItem>
+                      <SelectItem value="investments">Investimentos / Aplicações</SelectItem>
+                      <SelectItem value="partners">Retirada dos Sócios</SelectItem>
+                      <SelectItem value="loans">Empréstimos Concedidos</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="payment" className="text-sm font-medium">Forma de Pagamento</Label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <SelectTrigger className="w-full border-slate-200">
+                    <SelectValue placeholder="Selecione o método" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      <SelectItem value="pix">
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-4 w-4" />
+                          <span>Pix</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="credit">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4" />
+                          <span>Cartão</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="cash">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="h-4 w-4" />
+                          <span>Dinheiro</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="boleto">
+                        <div className="flex items-center gap-2">
+                          <Banknote className="h-4 w-4" />
+                          <span>Boleto</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="transfer">
+                        <div className="flex items-center gap-2">
+                          <ArrowUpDown className="h-4 w-4" />
+                          <span>Transferência</span>
+                        </div>
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
               {paymentMethod === "credit" && (
-                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2.5">
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="installments" className="text-sm font-medium">Parcelas</Label>
                     <Select value={installments.toString()} onValueChange={(value) => setInstallments(Number(value))}>
-                      <SelectTrigger className="w-full border-slate-200 h-10 text-sm">
+                      <SelectTrigger className="w-full border-slate-200">
                         <SelectValue placeholder="Número de parcelas" />
                       </SelectTrigger>
-                      <SelectContent position="popper" className="max-h-[250px] overflow-y-auto">
+                      <SelectContent position="popper" className="max-h-[200px] overflow-y-auto">
                         <SelectItem value="1">À vista</SelectItem>
                         {[2,3,4,5,6,7,8,9,10,11,12].map((n) => (
                           <SelectItem key={n} value={n.toString()}>{n}x</SelectItem>
@@ -363,24 +281,24 @@ const ExpenseDialog = () => {
                     </Select>
                   </div>
                   {installments > 1 && (
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       <Label htmlFor="installmentValue" className="text-sm font-medium">Valor da Parcela</Label>
                       <Input
                         id="installmentValue"
                         value={installmentValue}
                         onChange={handleInstallmentValueChange}
-                        className="border-slate-200 h-10 text-sm"
+                        className="border-slate-200"
                         placeholder="R$ 0,00"
                       />
                     </div>
                   )}
                 </div>
               )}
-              <div className="md:col-span-2 space-y-2.5">
+              <div className="md:col-span-2 space-y-2">
                 <Label htmlFor="supplier" className="text-sm font-medium">Fornecedor</Label>
                 <div className="flex gap-2">
                   <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
-                    <SelectTrigger className="w-full border-slate-200 h-10 text-sm">
+                    <SelectTrigger className="w-full border-slate-200">
                       <SelectValue placeholder="Selecione um fornecedor" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
@@ -395,7 +313,7 @@ const ExpenseDialog = () => {
                   </Select>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" className="shrink-0 h-10 text-sm">
+                      <Button variant="outline" className="shrink-0">
                         <UserPlus className="h-4 w-4 mr-2" />
                         Novo Fornecedor
                       </Button>
@@ -475,94 +393,6 @@ const ExpenseDialog = () => {
             </div>
           </div>
         </div>
-
-        {/* Modal de Despesa Fixa */}
-        <Dialog open={isFixedExpenseModalOpen} onOpenChange={setIsFixedExpenseModalOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Configurar Despesa Fixa</DialogTitle>
-              <DialogDescription>
-                Configure os detalhes da despesa recorrente
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label>Tipo de Despesa Fixa</Label>
-                <Select value={fixedExpenseType} onValueChange={setFixedExpenseType}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="employee">Salário de Funcionário</SelectItem>
-                    <SelectItem value="rent">Aluguel</SelectItem>
-                    <SelectItem value="utilities">Contas (Água, Luz, Internet)</SelectItem>
-                    <SelectItem value="subscription">Assinaturas</SelectItem>
-                    <SelectItem value="other">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Frequência</Label>
-                <Select value={fixedExpenseFrequency} onValueChange={setFixedExpenseFrequency}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a frequência" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">Diária</SelectItem>
-                    <SelectItem value="weekly">Semanal</SelectItem>
-                    <SelectItem value="monthly">Mensal</SelectItem>
-                    <SelectItem value="quarterly">Trimestral</SelectItem>
-                    <SelectItem value="yearly">Anual</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Data de Início</Label>
-                  <Input
-                    type="date"
-                    value={fixedExpenseStartDate}
-                    onChange={(e) => setFixedExpenseStartDate(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Data de Término (Opcional)</Label>
-                  <Input
-                    type="date"
-                    value={fixedExpenseEndDate}
-                    onChange={(e) => setFixedExpenseEndDate(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsFixedExpenseModalOpen(false)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={() => {
-                  if (fixedExpenseType && fixedExpenseFrequency && fixedExpenseStartDate) {
-                    setCategory("fixed");
-                    setRecurrenceType(fixedExpenseFrequency);
-                    setRecurrenceStartDate(fixedExpenseStartDate);
-                    setRecurrenceEndDate(fixedExpenseEndDate);
-                    setIsFixedExpenseModalOpen(false);
-                    toast.success("Despesa fixa configurada com sucesso!");
-                  } else {
-                    toast.error("Preencha todos os campos obrigatórios!");
-                  }
-                }}
-              >
-                Confirmar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </DialogContent>
     </Dialog>
   );
